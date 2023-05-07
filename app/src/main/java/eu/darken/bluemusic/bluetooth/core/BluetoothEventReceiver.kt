@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.bugsnag.android.Bugsnag
 import dagger.android.HasBroadcastReceiverInjector
 import eu.darken.bluemusic.main.core.audio.AudioStream
 import eu.darken.bluemusic.main.core.audio.StreamHelper
@@ -55,7 +54,6 @@ class BluetoothEventReceiver : BroadcastReceiver() {
                     "%s does not implement %s",
                     context.applicationContext.javaClass.canonicalName,
                     HasBroadcastReceiverInjector::class.java.canonicalName))
-            Bugsnag.notify(ex)
             return
         }
         (context.applicationContext as HasManualBroadcastReceiverInjector).broadcastReceiverInjector().inject(this)

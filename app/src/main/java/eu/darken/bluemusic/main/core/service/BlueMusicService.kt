@@ -12,7 +12,6 @@ import android.os.Build
 import android.os.IBinder
 import android.util.SparseArray
 import androidx.annotation.RequiresApi
-import com.bugsnag.android.Bugsnag
 import eu.darken.bluemusic.App
 import eu.darken.bluemusic.R
 import eu.darken.bluemusic.bluetooth.core.BluetoothEventReceiver
@@ -209,7 +208,6 @@ class BlueMusicService : Service(), VolumeObserver.Callback {
                                         }
                                         .subscribe({ }, { e ->
                                             Timber.e(e, "Event module error")
-                                            Bugsnag.notify(e)
                                         })
                             }
                             try {
@@ -288,7 +286,6 @@ class BlueMusicService : Service(), VolumeObserver.Callback {
                         Timber.d("action=%s, throwable=%s", action, throwable)
                         if (throwable != null && throwable !is UnmanagedDeviceException && throwable !is MissingDeviceException) {
                             Timber.e(throwable, "Device error")
-                            Bugsnag.notify(throwable)
                         }
                     }
 
@@ -345,7 +342,6 @@ class BlueMusicService : Service(), VolumeObserver.Callback {
                                     }
                                     .subscribe({ }, { e ->
                                         Timber.e(e, "Volume module error")
-                                        Bugsnag.notify(e)
                                     })
                         }
                         try {
@@ -359,7 +355,6 @@ class BlueMusicService : Service(), VolumeObserver.Callback {
 
                 }, { e ->
                     Timber.e(e, "Event module error")
-                    Bugsnag.notify(e)
                 })
     }
 }

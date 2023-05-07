@@ -107,15 +107,13 @@ class ConfigFragment : Fragment(), ConfigPresenter.View {
     }
 
     override fun updateProState(isPro: Boolean) {
-        ui.prefRingVolume.setDescription(getString(R.string.description_ring_volume) + if (isPro) "" else "\n[${getString(R.string.label_premium_version_required)}]     ")
-        ui.prefNotificationVolume.setDescription(getString(R.string.description_notification_volume) + if (isPro) "" else "\n[${getString(R.string.label_premium_version_required)}]")
-        ui.prefAutoplayEnabled.setDescription(getString(R.string.description_autoplay) + if (isPro) "" else "\n[${getString(R.string.label_premium_version_required)}]     ")
-        ui.prefVolumeLock.setDescription(getString(R.string.description_volume_lock) + if (isPro) "" else "\n[${getString(R.string.label_premium_version_required)}]")
-        ui.prefKeepAwake.setDescription(getString(R.string.description_keep_awake) + if (isPro) "" else "\n[${getString(R.string.label_premium_version_required)}]")
-        if (!isPro) {
-            ui.prefLaunchApp.setDescription("[" + getString(R.string.label_premium_version_required) + "]")
-        }
-        ui.prefRename.setDescription(getString(R.string.description_rename_device) + if (isPro) "" else "\n[${getString(R.string.label_premium_version_required)}]")
+        ui.prefRingVolume.setDescription(getString(R.string.description_ring_volume))
+        ui.prefNotificationVolume.setDescription(getString(R.string.description_notification_volume))
+        ui.prefAutoplayEnabled.setDescription(getString(R.string.description_autoplay) )
+        ui.prefVolumeLock.setDescription(getString(R.string.description_volume_lock) )
+        ui.prefKeepAwake.setDescription(getString(R.string.description_keep_awake))
+
+        ui.prefRename.setDescription(getString(R.string.description_rename_device))
     }
 
     override fun updateDevice(device: ManagedDevice) {

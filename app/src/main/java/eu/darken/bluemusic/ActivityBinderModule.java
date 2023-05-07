@@ -9,8 +9,7 @@ import eu.darken.bluemusic.bluetooth.ui.BluetoothActivity;
 import eu.darken.bluemusic.bluetooth.ui.BluetoothActivityComponent;
 import eu.darken.bluemusic.main.ui.MainActivity;
 import eu.darken.bluemusic.main.ui.MainActivityComponent;
-import eu.darken.bluemusic.onboarding.ui.OnboardingActivity;
-import eu.darken.bluemusic.onboarding.ui.OnboardingActivityComponent;
+
 import eu.darken.bluemusic.settings.ui.SettingsActivity;
 import eu.darken.bluemusic.settings.ui.SettingsActivityComponent;
 import eu.darken.mvpbakery.injection.activity.ActivityKey;
@@ -19,7 +18,6 @@ import eu.darken.mvpbakery.injection.activity.ActivityKey;
         MainActivityComponent.class,
         SettingsActivityComponent.class,
         BluetoothActivityComponent.class,
-        OnboardingActivityComponent.class
 })
 abstract class ActivityBinderModule {
 
@@ -38,8 +36,5 @@ abstract class ActivityBinderModule {
     @ActivityKey(BluetoothActivity.class)
     abstract AndroidInjector.Factory<? extends Activity> bluetooth(BluetoothActivityComponent.Builder impl);
 
-    @Binds
-    @IntoMap
-    @ActivityKey(OnboardingActivity.class)
-    abstract AndroidInjector.Factory<? extends Activity> onboarding(OnboardingActivityComponent.Builder impl);
+
 }

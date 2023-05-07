@@ -6,8 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import eu.darken.bluemusic.R
 import eu.darken.bluemusic.main.ui.managed.ManagedDevicesFragment.Companion.newInstance
-import eu.darken.bluemusic.onboarding.ui.OnboardingActivity
-import eu.darken.bluemusic.util.iap.IAPRepo
 import eu.darken.mvpbakery.base.MVPBakery.Companion.builder
 import eu.darken.mvpbakery.base.ViewModelRetainer
 import eu.darken.mvpbakery.injection.ComponentSource
@@ -19,7 +17,7 @@ import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), MainActivityPresenter.View, HasManualFragmentInjector {
     @Inject lateinit var componentSource: ComponentSource<Fragment>
-    @Inject lateinit var iapRepo: IAPRepo
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.BaseAppTheme)
@@ -34,9 +32,7 @@ class MainActivity : AppCompatActivity(), MainActivityPresenter.View, HasManualF
 
     override fun supportFragmentInjector(): ManualInjector<Fragment> = componentSource
 
-    override fun showOnboarding() {
-        startActivity(Intent(this, OnboardingActivity::class.java))
-    }
+
 
     override fun showDevices() {
         var introFragment = supportFragmentManager.findFragmentById(R.id.frame_content)
@@ -47,7 +43,7 @@ class MainActivity : AppCompatActivity(), MainActivityPresenter.View, HasManualF
     private var shouldReCheck = false
     override fun onStart() {
         super.onStart()
-        if (shouldReCheck) iapRepo.recheck()
+
     }
 
     override fun onStop() {

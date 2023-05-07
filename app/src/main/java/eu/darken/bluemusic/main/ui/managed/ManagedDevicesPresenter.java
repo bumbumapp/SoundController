@@ -27,7 +27,6 @@ import eu.darken.bluemusic.main.core.audio.StreamHelper;
 import eu.darken.bluemusic.main.core.database.DeviceManager;
 import eu.darken.bluemusic.main.core.database.ManagedDevice;
 import eu.darken.bluemusic.util.ApiHelper;
-import eu.darken.bluemusic.util.iap.IAPRepo;
 import eu.darken.mvpbakery.base.Presenter;
 import eu.darken.mvpbakery.base.StateListener;
 import eu.darken.mvpbakery.injection.ComponentPresenter;
@@ -40,7 +39,6 @@ import timber.log.Timber;
 public class ManagedDevicesPresenter extends ComponentPresenter<ManagedDevicesPresenter.View, ManagedDevicesComponent>
         implements StateListener {
     private final StreamHelper streamHelper;
-    private final IAPRepo iapRepo;
     private final BluetoothSource bluetoothSource;
     private final NotificationManager notificationManager;
     private final PowerManager powerManager;
@@ -60,7 +58,6 @@ public class ManagedDevicesPresenter extends ComponentPresenter<ManagedDevicesPr
             PackageManager packageManager,
             DeviceManager deviceManager,
             StreamHelper streamHelper,
-            IAPRepo iapRepo,
             BluetoothSource bluetoothSource,
             NotificationManager notificationManager,
             PowerManager powerManager
@@ -69,7 +66,6 @@ public class ManagedDevicesPresenter extends ComponentPresenter<ManagedDevicesPr
         this.packageManager = packageManager;
         this.deviceManager = deviceManager;
         this.streamHelper = streamHelper;
-        this.iapRepo = iapRepo;
         this.bluetoothSource = bluetoothSource;
         this.notificationManager = notificationManager;
         this.powerManager = powerManager;
@@ -98,10 +94,7 @@ public class ManagedDevicesPresenter extends ComponentPresenter<ManagedDevicesPr
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(enabled -> onView(v -> v.displayBluetoothState(enabled)));
 
-            upgradeSub = iapRepo.isProVersion()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(isProVersion -> onView(v -> v.updateUpgradeState(isProVersion)));
+
 
             deviceSub = deviceManager.devices()
                     .subscribeOn(Schedulers.computation())
@@ -234,7 +227,7 @@ public class ManagedDevicesPresenter extends ComponentPresenter<ManagedDevicesPr
     }
 
     void onUpgradeClicked(Activity activity) {
-        iapRepo.buyProVersion(activity);
+
     }
 
     void showBluetoothSettingsScreen() {

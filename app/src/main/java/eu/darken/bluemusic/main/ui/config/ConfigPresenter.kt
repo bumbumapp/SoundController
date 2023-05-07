@@ -10,7 +10,6 @@ import eu.darken.bluemusic.settings.core.Settings
 import eu.darken.bluemusic.util.ApiHelper
 import eu.darken.bluemusic.util.AppTool
 import eu.darken.bluemusic.util.WakelockMan
-import eu.darken.bluemusic.util.iap.IAPRepo
 import eu.darken.mvpbakery.base.Presenter
 import eu.darken.mvpbakery.injection.ComponentPresenter
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -24,7 +23,6 @@ import javax.inject.Inject
 class ConfigPresenter @Inject internal constructor(
         private val deviceManager: DeviceManager,
         private val streamHelper: StreamHelper,
-        private val iapRepo: IAPRepo,
         private val appTool: AppTool,
         private val notificationManager: NotificationManager,
         private val wakelockMan: WakelockMan
@@ -72,19 +70,11 @@ class ConfigPresenter @Inject internal constructor(
 
     private fun updatePro() {
         if (view != null) {
-            iapRepo.recheck()
-            upgradeSub = iapRepo.isProVersion
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { isProVersion: Boolean ->
-                        this@ConfigPresenter.isProVersion = isProVersion
-                        withView { it.updateProState(isProVersion) }
-                    }
         } else if (upgradeSub != null) upgradeSub!!.dispose()
     }
 
     fun onPurchaseUpgrade(activity: Activity) {
-        iapRepo.buyProVersion(activity)
+
     }
 
     fun onToggleMusicVolume() {
@@ -112,10 +102,7 @@ class ConfigPresenter @Inject internal constructor(
     }
 
     fun onToggleRingVolume(): Boolean {
-        if (!isProVersion) {
-            withView { it.showRequiresPro() }
-            return false
-        }
+
         if (device.getVolume(AudioStream.Type.RINGTONE) == null) {
             if (ApiHelper.hasMarshmallow() && !notificationManager.isNotificationPolicyAccessGranted) {
                 // Missing permissions for this, reset value
@@ -135,10 +122,7 @@ class ConfigPresenter @Inject internal constructor(
     }
 
     fun onToggleNotificationVolume(): Boolean {
-        if (!isProVersion) {
-            withView { it.showRequiresPro() }
-            return false
-        }
+
         if (device.getVolume(AudioStream.Type.NOTIFICATION) == null) {
             if (ApiHelper.hasMarshmallow() && !notificationManager.isNotificationPolicyAccessGranted) {
                 // Missing permissions for this, reset value
@@ -158,10 +142,7 @@ class ConfigPresenter @Inject internal constructor(
     }
 
     fun onToggleAlarmVolume(): Boolean {
-        if (!isProVersion) {
-            withView { it.showRequiresPro() }
-            return false
-        }
+
         if (device.getVolume(AudioStream.Type.ALARM) == null) {
             device.setVolume(AudioStream.Type.ALARM, streamHelper.getVolumePercentage(device.getStreamId(AudioStream.Type.ALARM)))
         } else {
@@ -177,7 +158,7 @@ class ConfigPresenter @Inject internal constructor(
     }
 
     fun onToggleAutoPlay(): Boolean {
-        if (isProVersion) {
+
             device.autoPlay = !device.autoPlay
             deviceManager.save(setOf(device))
                     .subscribeOn(Schedulers.computation())
@@ -185,14 +166,12 @@ class ConfigPresenter @Inject internal constructor(
                             {},
                             { e -> Timber.e(e, "Failed to toggle autoplay.") }
                     )
-        } else {
-            withView { it.showRequiresPro() }
-        }
+
         return device.autoPlay
     }
 
     fun onToggleVolumeLock(): Boolean {
-        if (isProVersion) {
+
             device.volumeLock = !device.volumeLock
             deviceManager.save(setOf(device))
                     .subscribeOn(Schedulers.computation())
@@ -200,14 +179,12 @@ class ConfigPresenter @Inject internal constructor(
                             {},
                             { e -> Timber.e(e, "Failed to toggle volume lock.") }
                     )
-        } else {
-            withView { it.showRequiresPro() }
-        }
+
         return device.volumeLock
     }
 
     fun onToggleKeepAwake(): Boolean {
-        if (isProVersion) {
+
             device.keepAwake = !device.keepAwake
             deviceManager.save(setOf(device))
                     .subscribeOn(Schedulers.computation())
@@ -221,9 +198,7 @@ class ConfigPresenter @Inject internal constructor(
                             },
                             { e -> Timber.e(e, "Failed to toggle keep alive.") }
                     )
-        } else {
-            withView { it.showRequiresPro() }
-        }
+
         return device.keepAwake
     }
 
@@ -292,8 +267,8 @@ class ConfigPresenter @Inject internal constructor(
     }
 
     fun onRenameClicked() {
-        if (isProVersion) withView { it.showRenameDialog(device.alias) }
-        else withView { it.showRequiresPro() }
+     withView { it.showRenameDialog(device.alias) }
+
     }
 
     fun onRenameDevice(newAlias: String?) {
@@ -317,7 +292,7 @@ class ConfigPresenter @Inject internal constructor(
     }
 
     fun onLaunchAppClicked() {
-        if (isProVersion) {
+
             @Suppress("UNCHECKED_CAST")
             Single.create<List<AppTool.Item>> { it.onSuccess(appTool.apps) }
                     .subscribeOn(Schedulers.io())
@@ -328,9 +303,7 @@ class ConfigPresenter @Inject internal constructor(
                     }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { apps: List<AppTool.Item> -> withView { it.showAppSelectionDialog(apps) } }
-        } else {
-            withView { obj: View -> obj.showRequiresPro() }
-        }
+
     }
 
     fun onClearLaunchApp() {

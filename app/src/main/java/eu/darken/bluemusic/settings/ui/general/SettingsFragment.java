@@ -79,13 +79,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Settin
                 //noinspection ConstantConditions
                 getActivity().finish();
                 return true;
-            case R.id.about:
-                //noinspection ConstantConditions
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frame_content, new AboutFragment())
-                        .addToBackStack(null)
-                        .commit();
-                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -94,13 +88,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Settin
     @Override
     public void updatePremiumState(boolean isPro) {
         CheckBoxPreference visibleAdjustments = (CheckBoxPreference) findPreference(Settings.PREFKEY_VISIBLE_ADJUSTMENTS);
-        visibleAdjustments.setIcon(isPro ? null : ContextCompat.getDrawable(Check.notNull(getContext()), R.drawable.ic_stars_white_24dp));
         visibleAdjustments.setSummary(getString(R.string.description_visible_volume_adjustments) + (isPro ? "" : ("\n[" + getString(R.string.label_premium_version_required) + "]")));
         visibleAdjustments.setOnPreferenceClickListener(preference -> {
             if (isPro) return false;
             else {
                 visibleAdjustments.setChecked(!visibleAdjustments.isChecked());
-                showRequiresPremiumDialog();
                 return true;
             }
         });
@@ -112,7 +104,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Settin
             if (isPro) return false;
             else {
                 autoSave.setChecked(!autoSave.isChecked());
-                showRequiresPremiumDialog();
                 return true;
             }
         });

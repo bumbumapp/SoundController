@@ -1,11 +1,16 @@
 package eu.darken.bluemusic.main.ui.managed
 
 import android.annotation.SuppressLint
-import android.content.DialogInterface
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.InsetDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.AlertDialog
+import android.widget.Button
+import android.widget.ImageButton
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
@@ -89,7 +94,7 @@ class ManagedDevicesFragment : Fragment(), ManagedDevicesPresenter.View, Managed
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(R.id.upgrade).isVisible = !isProVersion
+
         val btIcon = DrawableCompat.wrap(menu.findItem(R.id.bluetooth_settings).icon)
         val btStateColor = if (bluetoothEnabled) android.R.color.white else R.color.state_m3
         DrawableCompat.setTint(btIcon, ContextCompat.getColor(requireContext(), btStateColor))
@@ -99,22 +104,17 @@ class ManagedDevicesFragment : Fragment(), ManagedDevicesPresenter.View, Managed
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.upgrade -> {
-                AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.label_premium_version)
-                        .setMessage(R.string.description_premium_upgrade_explanation)
-                        .setIcon(R.drawable.ic_stars_white_24dp)
-                        .setPositiveButton(R.string.action_upgrade) { dialogInterface: DialogInterface?, i: Int -> presenter.onUpgradeClicked(activity) }
-                        .setNegativeButton(R.string.action_cancel) { dialogInterface: DialogInterface?, i: Int -> }
-                        .show()
-                true
-            }
+
             R.id.bluetooth_settings -> {
                 presenter.showBluetoothSettingsScreen()
                 true
             }
             R.id.settings -> {
                 ActivityUtil.tryStartActivity(requireActivity(), Intent(context, SettingsActivity::class.java))
+                true
+            }
+            R.id.info -> {
+                showDialogAbout()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -132,6 +132,35 @@ class ManagedDevicesFragment : Fragment(), ManagedDevicesPresenter.View, Managed
     override fun updateUpgradeState(isProVersion: Boolean) {
         this.isProVersion = isProVersion
         requireActivity().invalidateOptionsMenu()
+    }
+
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    private fun showDialogAbout() {
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE) // before
+        dialog.setContentView(R.layout.dialog_about)
+        dialog.setCancelable(true)
+        val lp = WindowManager.LayoutParams()
+        lp.copyFrom(dialog.window!!.attributes)
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT
+        val back = ColorDrawable(Color.TRANSPARENT)
+        val margin = 20
+        val inset = InsetDrawable(back, margin)
+        dialog.window!!.setBackgroundDrawable(inset)
+        (dialog.findViewById<View>(R.id.bt_close) as ImageButton).setOnClickListener { if (dialog != null) dialog.dismiss() }
+        (dialog.findViewById<View>(R.id.bt_licence) as Button).setOnClickListener {
+            val url = "https://github.com/d4rken-org/bluemusic/blob/master/LICENSE"
+            val urlIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(urlIntent)
+        }
+        (dialog.findViewById<View>(R.id.app_source_code) as Button).setOnClickListener {
+            val url = "https://github.com/bumbumapp/SoundController"
+            val urlIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(urlIntent)
+        }
+        dialog.show()
+        dialog.window!!.attributes = lp
     }
 
     override fun displayDevices(managedDevices: List<ManagedDevice>) {

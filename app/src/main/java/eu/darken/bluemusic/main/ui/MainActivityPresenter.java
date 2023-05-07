@@ -20,18 +20,15 @@ public class MainActivityPresenter extends ComponentPresenter<MainActivityPresen
         super.onBindChange(view);
         if (getView() != null) {
             onView(v -> {
-                if (settings.isShowOnboarding()) {
-                    v.showOnboarding();
-                } else {
+
                     v.showDevices();
-                }
+
             });
         }
     }
 
     interface View extends Presenter.View {
 
-        void showOnboarding();
 
         void showDevices();
     }

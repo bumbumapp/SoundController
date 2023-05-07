@@ -41,7 +41,6 @@
         </activity>
         <activity android:name=".settings.ui.SettingsActivity"/>
         <activity android:name=".bluetooth.ui.BluetoothActivity"/>
-        <activity android:name=".onboarding.ui.OnboardingActivity"/>
 
         <receiver
             android:name="eu.darken.bluemusic.bluetooth.core.BluetoothEventReceiver"
@@ -65,9 +64,7 @@
 
         <service android:name=".main.core.service.BlueMusicService"/>
 
-        <meta-data
-            android:name="com.bugsnag.android.API_KEY"
-            android:value="${bugsnagApiKey}" />
+
     </application>
 
 </manifest>

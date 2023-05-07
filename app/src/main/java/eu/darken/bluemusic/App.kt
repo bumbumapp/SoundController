@@ -4,12 +4,8 @@ import android.app.Activity
 import android.app.Application
 import android.app.Service
 import android.content.BroadcastReceiver
-import com.bugsnag.android.Bugsnag
-import com.bugsnag.android.Configuration
 import eu.darken.bluemusic.main.core.database.MigrationTool
 import eu.darken.bluemusic.settings.core.Settings
-import eu.darken.bluemusic.util.BugsnagErrorHandler
-import eu.darken.bluemusic.util.BugsnagTree
 import eu.darken.mvpbakery.injection.ComponentSource
 import eu.darken.mvpbakery.injection.ManualInjector
 import eu.darken.mvpbakery.injection.activity.HasManualActivityInjector
@@ -23,8 +19,6 @@ import javax.inject.Inject
 
 class App : Application(), HasManualActivityInjector, HasManualBroadcastReceiverInjector, HasManualServiceInjector {
 
-    @Inject lateinit var bugsnagTree: BugsnagTree
-    @Inject lateinit var errorHandler: BugsnagErrorHandler
     @Inject lateinit var appComponent: AppComponent
     @Inject lateinit var activityInjector: ComponentSource<Activity>
     @Inject lateinit var receiverInjector: ComponentSource<BroadcastReceiver>
@@ -41,14 +35,11 @@ class App : Application(), HasManualActivityInjector, HasManualBroadcastReceiver
                 .build()
                 .injectMembers(this)
 
-        Timber.plant(bugsnagTree)
 
-        Configuration.load(this).apply {
-            addOnError(errorHandler)
-            apiKey = "test"
-        }.let { Bugsnag.start(this@App, it) }
 
-        Timber.d("Bugsnag setup done!")
+
+
+
         val migrationTool = MigrationTool()
         Realm.init(this)
         val realmConfig = RealmConfiguration.Builder()
