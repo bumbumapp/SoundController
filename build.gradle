@@ -1,25 +1,23 @@
 buildscript {
     ext.buildConfig = [
-            'kotlin' : '1.5.31',
-            'compileSdk': 30,
-            'minSdk'    : 16,
-            'targetSdk' : 30,
+            'kotlin' : '2.2.21',
+            'compileSdk': 36,
+            'minSdk'    : 23,
+            'targetSdk' : 36,
             'deps'      : [
-                    'dagger': '2.21',
+                    'dagger': '2.23.2',
             ]
     ]
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.2'
+        classpath 'com.android.tools.build:gradle:8.13.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${buildConfig.kotlin}"
 
-        classpath "io.realm:realm-gradle-plugin:10.8.0"
+        classpath "io.realm:realm-gradle-plugin:10.19.0"
 
-        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:3.0.0'
     }
 }
 
@@ -27,11 +25,13 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
-        maven { url "https://jitpack.io" }
+        maven {
+            url "https://jitpack.io"
+            content { includeGroupByRegex 'com\\.github\\..*' }
+        }
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+tasks.register('clean', Delete) {
+    delete rootProject.layout.buildDirectory
 }

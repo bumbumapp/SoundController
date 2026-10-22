@@ -122,7 +122,9 @@ class LiveBluetoothSource implements BluetoothSource {
                 }
             }
         };
-        context.registerReceiver(receiver, filter, null, handler);
+        // Android 14+ requires an export flag; these are system Bluetooth broadcasts.
+        androidx.core.content.ContextCompat.registerReceiver(context, receiver, filter, null, handler,
+                androidx.core.content.ContextCompat.RECEIVER_EXPORTED);
 
         updatePaired();
 
@@ -145,10 +147,12 @@ class LiveBluetoothSource implements BluetoothSource {
 
     private Single<Map<String, SourceDevice>> loadPairedDevices() {
         Timber.v("loadPairedDevices()");
-        return Single.defer(() -> Single.just(manager.getAdapter().getBondedDevices()))
+        return Single.defer(() -> Single.just(BluetoothPermission.has(context) && manager.getAdapter() != null
+                ? manager.getAdapter().getBondedDevices() : new java.util.HashSet<BluetoothDevice>()))
                 .map(bluetoothDevices -> {
                     Map<String, SourceDevice> devices = new HashMap<>();
-                    for (BluetoothDevice realDevice : manager.getAdapter().getBondedDevices()) {
+                    // Without BLUETOOTH_CONNECT (Android 12+) only the built-in speaker is listed.
+                    for (BluetoothDevice realDevice : bluetoothDevices) {
 
                         final ParcelUuid[] uuids = realDevice.getUuids();
                         if (hasUUID(uuids, 0x1400) && settings.isHealthDeviceExcluded()) {

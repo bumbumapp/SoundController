@@ -56,11 +56,11 @@ public class ServiceHelper {
         }
 
         Intent openIntent = new Intent(service, MainActivity.class);
-        PendingIntent openPi = PendingIntent.getActivity(service, 0, openIntent, 0);
+        PendingIntent openPi = PendingIntent.getActivity(service, 0, openIntent, PendingIntent.FLAG_IMMUTABLE);
 
         Intent stopIntent = new Intent(service, BlueMusicService.class);
         stopIntent.setAction(STOP_ACTION);
-        PendingIntent stopPi = PendingIntent.getService(service, 0, stopIntent, 0);
+        PendingIntent stopPi = PendingIntent.getService(service, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE);
 
         builder = new NotificationCompat.Builder(service, NOTIFICATION_CHANNEL_ID)
                 .setChannelId(NOTIFICATION_CHANNEL_ID)
@@ -90,7 +90,15 @@ public class ServiceHelper {
 
                         isStarted = true;
                         Timber.d("Executing startForeground()");
-                        service.startForeground(NOTIFICATION_ID, builder.build());
+                        try {
+                            // Android 14+: typed FGS; needs BLUETOOTH_CONNECT for "connectedDevice".
+                            androidx.core.app.ServiceCompat.startForeground(service, NOTIFICATION_ID, builder.build(),
+                                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+                        } catch (RuntimeException e) {
+                            Timber.e(e, "startForeground() refused");
+                            isStarted = false;
+                            service.stopSelf();
+                        }
                     } else {
                         if (!isStarted) {
                             Timber.w("Calling stopForeground() without startForeground()");
@@ -104,7 +112,7 @@ public class ServiceHelper {
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(() -> {
                                     Timber.d("Executing stopForeground()");
-                                    service.stopForeground(true);
+                                    androidx.core.app.ServiceCompat.stopForeground(service, androidx.core.app.ServiceCompat.STOP_FOREGROUND_REMOVE);
                                     service.stopSelf();
                                     // Sometimes stopForeground doesn't remove the notification, but just makes it removable
                                     notificationManager.cancel(NOTIFICATION_ID);
@@ -126,10 +134,16 @@ public class ServiceHelper {
     }
 
     public static ComponentName startService(Context context, Intent intent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return context.startForegroundService(intent);
-        } else {
-            return context.startService(intent);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                return context.startForegroundService(intent);
+            } else {
+                return context.startService(intent);
+            }
+        } catch (RuntimeException e) {
+            // ForegroundServiceStartNotAllowedException / missing Bluetooth permission (Android 12+).
+            Timber.e(e, "Could not start BlueMusicService");
+            return null;
         }
     }
 

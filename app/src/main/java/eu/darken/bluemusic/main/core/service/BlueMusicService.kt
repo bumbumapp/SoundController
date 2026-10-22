@@ -81,7 +81,10 @@ class BlueMusicService : Service(), VolumeObserver.Callback {
         contentResolver.registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, volumeObserver)
 
         if (ApiHelper.hasMarshmallow()) {
-            registerReceiver(ringerPermission, IntentFilter(NotificationManager.ACTION_NOTIFICATION_POLICY_ACCESS_GRANTED_CHANGED))
+            androidx.core.content.ContextCompat.registerReceiver(
+                this, ringerPermission, IntentFilter(NotificationManager.ACTION_NOTIFICATION_POLICY_ACCESS_GRANTED_CHANGED),
+                androidx.core.content.ContextCompat.RECEIVER_EXPORTED
+            )
         }
 
         notificationSub = deviceManager.devices()

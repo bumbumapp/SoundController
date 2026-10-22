@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="eu.darken.bluemusic"
+<manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -22,6 +25,7 @@
 
 
     <application
+        android:enableOnBackInvokedCallback="false"
         android:name="eu.darken.bluemusic.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -62,7 +66,10 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".main.core.service.BlueMusicService"/>
+        <service
+            android:name=".main.core.service.BlueMusicService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
 
 
     </application>
