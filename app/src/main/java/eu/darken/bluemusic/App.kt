@@ -28,6 +28,7 @@ class App : Application(), HasManualActivityInjector, HasManualBroadcastReceiver
 
     override fun onCreate() {
         super.onCreate()
+        EdgeToEdgeInsets.install(this)
         if (BuildConfig.DEBUG) Timber.plant(DebugTree())
 
         DaggerAppComponent.builder()
