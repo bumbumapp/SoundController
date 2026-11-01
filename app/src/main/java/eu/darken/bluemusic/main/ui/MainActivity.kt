@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import eu.darken.bluemusic.R
+import eu.darken.bluemusic.ads.AdsManager
 import eu.darken.bluemusic.main.ui.managed.ManagedDevicesFragment.Companion.newInstance
 import eu.darken.mvpbakery.base.MVPBakery.Companion.builder
 import eu.darken.mvpbakery.base.ViewModelRetainer
@@ -29,7 +30,20 @@ class MainActivity : AppCompatActivity(), MainActivityPresenter.View, HasManualF
                 .attach(this)
         setContentView(R.layout.activity_layout_main)
         requestRuntimePermissions()
+        // Huawei AppGallery build: banner under the device list, and a (capped) interstitial when
+        // the user leaves a device's settings screen. No-ops in the Play build.
+        val ads = AdsManager.get(this)
+        ads.init(this)
+        ads.loadBanner(this, findViewById(R.id.ad_container))
+        supportFragmentManager.addOnBackStackChangedListener {
+            val depth = supportFragmentManager.backStackEntryCount
+            if (depth < backStackDepth && !isFinishing) ads.onBreakPoint(this) {}
+            backStackDepth = depth
+        }
+        backStackDepth = supportFragmentManager.backStackEntryCount
     }
+
+    private var backStackDepth = 0
 
     /** Android 12+: Bluetooth devices need BLUETOOTH_CONNECT; Android 13+: the service notification. */
     private fun requestRuntimePermissions() {

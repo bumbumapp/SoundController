@@ -19,3 +19,4 @@ fastlane/screenshots
 fastlane/test_output
 fastlane/README.md
 *.apk
+ads.properties

@@ -16,6 +16,18 @@ def gitSha() {
     return p.text.trim()
 }
 
+
+// Huawei Ads (Petal) slot IDs for the AppGallery (hms) build; override with -PHMS_BANNER_ID=... or a
+// gitignored ads.properties. Debug builds always use Huawei's public test slots.
+def adsProps = new Properties()
+def adsFile = rootProject.file('ads.properties')
+if (adsFile.exists()) adsFile.withInputStream { adsProps.load(it) }
+def adId = { String key, String fallback -> ((project.findProperty(key) ?: adsProps.getProperty(key))?.toString()?.trim()) ?: fallback }
+def HMS_TEST_BANNER_ID = 'testw6vs28auh3'
+def HMS_TEST_INTERSTITIAL_ID = 'testb4znbuh3n2'
+def HMS_BANNER_ID = adId('HMS_BANNER_ID', 'w0ytae04kz')
+def HMS_INTERSTITIAL_ID = adId('HMS_INTERSTITIAL_ID', 't36y89spsk')
+
 android {
 
     namespace 'eu.darken.bluemusic'
@@ -28,7 +40,7 @@ android {
         applicationId "com.bumbumapps.soundcontroller"
         minSdk buildConfig.minSdk
         targetSdk buildConfig.targetSdk
-        versionCode 2
+        versionCode 4
         versionName "1.1.0"
 
     }
@@ -78,7 +90,23 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+    // play = Google Play (no ads), hms = Huawei AppGallery (Huawei Ads, no Google Mobile Services).
+    flavorDimensions = ['store']
+    productFlavors {
+        play {
+            dimension 'store'
+        }
+        hms {
+            dimension 'store'
+            resValue 'string', 'hms_banner_id', HMS_BANNER_ID
+            resValue 'string', 'hms_interstitial_id', HMS_INTERSTITIAL_ID
+            resValue 'string', 'hms_test_banner_id', HMS_TEST_BANNER_ID
+            resValue 'string', 'hms_test_interstitial_id', HMS_TEST_INTERSTITIAL_ID
+        }
+    }
+
     buildFeatures {
+        resValues true
         viewBinding true
         buildConfig true
     }
@@ -90,6 +118,7 @@ tasks.withType(Test) {
 
 
 dependencies {
+    hmsImplementation 'com.huawei.hms:ads-lite:13.4.91.301'
     // Support libs
     implementation "androidx.appcompat:appcompat:1.7.1"
     implementation "androidx.recyclerview:recyclerview:1.4.0"
